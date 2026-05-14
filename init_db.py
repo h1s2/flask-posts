@@ -1,19 +1,17 @@
-import sqlite3
+from db import get_db
 
-def get_db():
-  conn = sqlite3.connect("app.db")
-  conn.row_factory = sqlite3.Row
-  return conn
 
 def init_db():
   conn = get_db()
   cur = conn.cursor()
+
   cur.execute("""
     CREATE TABLE IF NOT EXISTS posts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      post TEXT
+      content TEXT
     )
   """)
+  
   conn.commit()
   conn.close()
 
