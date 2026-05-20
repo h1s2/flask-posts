@@ -11,6 +11,7 @@ Flask와 SQLite를 사용한 간단한 게시판 프로젝트입니다.
 - SQLite 데이터베이스 생성
 - posts 테이블 생성
 - `/posts` GET, POST API 추가
+- `/posts/<int:post_id>` PATCH, DELETE API 추가
 
 ## 실행 방법
 ```bash
