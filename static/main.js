@@ -15,6 +15,10 @@ async function renderPost(post) {
   editBtn.addEventListener("click", async () => {
     const newContent = prompt("수정할 내용");
 
+    if (!newContent?.trim()) {
+      return;
+    }
+
     await fetch(`/posts/${post.id}`, {
       method: "PATCH",
       headers: {
@@ -57,16 +61,17 @@ async function loadPosts() {
 createPostBtn.addEventListener("click", async () => {
   const content = document.getElementById("post-content").value;
 
-  const res = await fetch("/posts", {
+  if (!content?.trim()) {
+      return;
+    }
+
+  await fetch("/posts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ content })
   });
-
-  const data = await res.json();
-  alert(data.message);
 
   await loadPosts();
 });

@@ -36,6 +36,9 @@ def create_post():
 
   content = data.get("content")
 
+  if not content:
+    return jsonify({"message": "content is required"}), 400
+
   conn = get_db()
   cur = conn.cursor()
 
@@ -55,6 +58,9 @@ def update_post(post_id):
   data = request.get_json()
   content = data.get("content")
 
+  if not content:
+    return jsonify({"message": "content is required"}), 400
+
   conn = get_db()
   cur = conn.cursor()
 
@@ -66,7 +72,7 @@ def update_post(post_id):
   conn.commit()
   conn.close()
 
-  return jsonify({"message": "content required"})
+  return jsonify({"message": "post updated"})
 
 @app.route("/posts/<int:post_id>", methods=["DELETE"])
 def delete_post(post_id):
