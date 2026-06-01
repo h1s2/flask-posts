@@ -1,5 +1,6 @@
 const createPostBtn = document.getElementById("create-post-btn");
 const loadPostsBtn = document.getElementById("load-posts-btn");
+const signupBtn = document.getElementById("signup-btn");
 const postList = document.getElementById("post-list");
 
 
@@ -74,6 +75,25 @@ createPostBtn.addEventListener("click", async () => {
   });
 
   await loadPosts();
+});
+
+signupBtn.addEventListener("click", async () => {
+  const signupUsername = document.getElementById("signup-username").value;
+  const signupPassword = document.getElementById("signup-password").value;
+
+  const res = await fetch("/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: signupUsername,
+      password: signupPassword
+    })
+  });
+
+  const data = await res.json();
+  alert(data.message);
 });
 
 loadPosts();

@@ -5,12 +5,36 @@
   <title>flask-posts</title>
 </head>
 <body>
+  <section>
+    <h2>회원가입</h2>
+    <input type="text" id="signup-username" placeholder="username">
+    <input type="password" id="signup-password" placeholder="password">
+    <button id="signup-btn">회원가입</button>
+  </section>
+
+  <section>
+  <h2>로그인</h2>
+  <input type="text" id="login-username" placeholder="username">
+  <input type="text" id="login-password" placeholder="password">
+  <button id="login-btn">로그인</button>
+  <button id="logout-btn">로그아웃</button>
+  <button id="me-btn">내 정보 보기</button>
+  </section>
+
+  <hr>
+
+  <section>
   <h2>게시글 작성</h2>
   <textarea type="text" id="post-content"></textarea>
   <button id="create-post-btn">글 작성</button>
+  </section>
 
+  <hr>
+
+  <section>
   <h2>게시글 목록</h2>
   <ul id="post-list"></ul>
+  </section>
 
   <script src="static/main.js"></script>
 </body>
