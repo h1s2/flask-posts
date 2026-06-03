@@ -1,6 +1,8 @@
 const createPostBtn = document.getElementById("create-post-btn");
 const loadPostsBtn = document.getElementById("load-posts-btn");
 const signupBtn = document.getElementById("signup-btn");
+const loginBtn = document.getElementById("login-btn");
+const logoutBtn = document.getElementById("logout-btn");
 const postList = document.getElementById("post-list");
 
 
@@ -95,5 +97,34 @@ signupBtn.addEventListener("click", async () => {
   const data = await res.json();
   alert(data.message);
 });
+
+loginBtn.addEventListener("click", async () => {
+  const loginUsername = document.getElementById("login-username").value;
+  const loginPassword = document.getElementById("login-password").value;
+
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: loginUsername,
+      password: loginPassword
+    })
+  });
+
+  const data = await res.json();
+  alert(data.message);
+});
+
+logoutBtn.addEventListener("click", async () => {
+  const res = await fetch("/logout", {
+    method: "POST"
+  });
+
+  const data = await res.json();
+  alert(data.message);
+});
+
 
 loadPosts();

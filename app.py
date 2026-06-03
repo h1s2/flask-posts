@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, jsonify
-from werkzeug.security import generate_password_hash
+from flask import Flask, render_template, request, jsonify, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db
 
 
 app = Flask(__name__)
+app.secret_key = "my-secret-key"
 
 @app.route("/")
 def home():
@@ -138,6 +139,49 @@ def signup():
     conn.close()
 
   return jsonify({"message": "signup success"}), 201
+
+@app.route("/login", methods=["POST"])
+def login():
+  if "user_id" in session:
+    return jsonify({"message": "already logged in"}), 400
+
+  data = request.get_json()
+
+  username = data.get("username")
+  password = data.get("password")
+
+  if not username or not password:
+    return jsonify({"message": "username and password required"}), 400
+  
+  conn = get_db()
+  cur = conn.cursor()
+
+  cur.execute(
+    "SELECT * FROM users WHERE username = ?",
+    (username,)
+  )
+
+  user = cur.fetchone()
+  conn.close()
+
+  if user is None:
+    return jsonify({"message": "invalid username or password"}), 401
+
+  if not check_password_hash(user["password_hash"], password):
+    return jsonify({"message": "invalid username or password"}), 401
+
+  session["user_id"] = user["id"]
+
+  return jsonify({"message": "login success"})
+
+@app.route("/logout", methods=["POST"])
+def logout():
+  user_id = session.pop("user_id", None)
+
+  if user_id is None:
+    return jsonify({"message": "login required"}), 401
+  
+  return jsonify({"message": "logout success"})
 
 
 
