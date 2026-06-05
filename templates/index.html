@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>flask-posts</title>
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  >
 </head>
 <body>
   <section>
@@ -36,6 +40,6 @@
   <ul id="post-list"></ul>
   </section>
 
-  <script src="static/main.js"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>

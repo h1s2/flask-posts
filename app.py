@@ -176,12 +176,20 @@ def login():
 
 @app.route("/logout", methods=["POST"])
 def logout():
-  user_id = session.pop("user_id", None)
-
-  if user_id is None:
+  if "user_id" not in session:
     return jsonify({"message": "login required"}), 401
-  
+
+  session.pop("user_id", None)
+
   return jsonify({"message": "logout success"})
+
+@app.route("/me", methods=["GET"])
+def me():
+  if "user_id" in session:
+    return jsonify({"loggedIn": True})
+  
+  return jsonify({"loggedIn": False})
+  
 
 
 

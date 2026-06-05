@@ -5,6 +5,18 @@ const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const postList = document.getElementById("post-list");
 
+async function checkLoginStatus() {
+  const res = await fetch("/me");
+  const data = await res.json()
+
+  if (data.loggedIn) {
+    loginBtn.classList.add("hidden");
+    logoutBtn.classList.remove("hidden");
+  } else {
+    loginBtn.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+  }
+}
 
 async function renderPost(post) {
   const li = document.createElement("li");
@@ -113,8 +125,13 @@ loginBtn.addEventListener("click", async () => {
     })
   });
 
-  const data = await res.json();
-  alert(data.message);
+  if (res.ok) {
+    loginBtn.classList.add("hidden");
+    logoutBtn.classList.remove("hidden");
+  } else {
+    const data = await res.json();
+    alert(data.message);
+  }
 });
 
 logoutBtn.addEventListener("click", async () => {
@@ -122,9 +139,14 @@ logoutBtn.addEventListener("click", async () => {
     method: "POST"
   });
 
-  const data = await res.json();
-  alert(data.message);
+  if (res.ok) {
+    loginBtn.classList.remove("hidden");
+    logoutBtn.classList.add("hidden");
+  } else {
+    const data = await res.json();
+    alert(data.message);
+  }
 });
 
-
+checkLoginStatus();
 loadPosts();

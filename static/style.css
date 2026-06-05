@@ -1,0 +1,13 @@
+#login-btn {
+  display: inline-block;
+}
+#login-btn.hidden {
+  display: none;
+}
+
+#logout-btn {
+  display: inline-block;
+}
+#logout-btn.hidden {
+  display: none;
+}
