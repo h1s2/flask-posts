@@ -22,7 +22,7 @@ async function renderPost(post) {
   const li = document.createElement("li");
 
   const text = document.createElement("span");
-  text.textContent = post.content;
+  text.textContent = `${post.content} / ${post.user_id}`;
 
   const editBtn = document.createElement("button");
   editBtn.textContent = "수정";
@@ -34,7 +34,7 @@ async function renderPost(post) {
       return;
     }
 
-    await fetch(`/posts/${post.id}`, {
+    const res = await fetch(`/posts/${post.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json"
@@ -44,16 +44,30 @@ async function renderPost(post) {
       })
     });
 
-    text.textContent = newContent;
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message);
+      return;
+    }
+
+    text.textContent = `${newContent} / ${post.user_id}`;
   });
 
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "삭제";
 
   deleteBtn.addEventListener("click", async () => {
-    await fetch(`/posts/${post.id}`, {
+    const res = await fetch(`/posts/${post.id}`, {
       method: "DELETE"
     });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.message);
+      return;
+    }
 
     li.remove();
   });
@@ -78,15 +92,22 @@ createPostBtn.addEventListener("click", async () => {
 
   if (!content?.trim()) {
       return;
-    }
+  }
 
-  await fetch("/posts", {
+  const res = await fetch("/posts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({ content })
   });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.message);
+    return;
+  }
 
   await loadPosts();
 });

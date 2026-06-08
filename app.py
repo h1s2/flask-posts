@@ -1,10 +1,13 @@
 from flask import Flask, render_template, request, jsonify, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "my-secret-key"
+app.secret_key = os.getenv("SECRET_KEY")
 
 @app.route("/")
 def home():
@@ -25,17 +28,21 @@ def get_posts():
   for post in posts:
     result.append({
       "id": post["id"],
-      "content": post["content"]
+      "content": post["content"],
+      "user_id": post["user_id"]
     })
   
   return jsonify(result)
 
 @app.route("/posts", methods=["POST"])
 def create_post():
-  
+  if not session.get("user_id"):
+    return jsonify({"message": "login required"}), 401
+
   data = request.get_json()
 
   content = data.get("content")
+  user_id = session.get("user_id")
 
   if not content:
     return jsonify({"message": "content is required"}), 400
@@ -44,18 +51,22 @@ def create_post():
   cur = conn.cursor()
 
   cur.execute(
-    "INSERT INTO posts (content) VALUES (?)",
-    (content,)
+    "INSERT INTO posts (content, user_id) VALUES (?, ?)",
+    (content, user_id)
   )
   
   conn.commit()
   conn.close()
 
-  return jsonify({"message": "post created"})
+  return jsonify({"message": "post created"}), 201
 
 @app.route("/posts/<int:post_id>", methods=["PATCH"])
 def update_post(post_id):
+  if not session.get("user_id"):
+    return jsonify({"message": "login required"}), 401
+
   data = request.get_json()
+
   content = data.get("content")
 
   if not content:
@@ -65,7 +76,7 @@ def update_post(post_id):
   cur = conn.cursor()
 
   cur.execute(
-    "SELECT id FROM posts WHERE id = ?",
+    "SELECT * FROM posts WHERE id = ?",
     (post_id,)
   )
 
@@ -74,6 +85,10 @@ def update_post(post_id):
   if post is None:
     conn.close()
     return jsonify({"message": "post not found"}), 404
+
+  if post["user_id"] != session.get("user_id"):
+    conn.close()
+    return jsonify({"message": "forbidden"}), 403
 
   cur.execute(
     "UPDATE posts SET content = ? WHERE id = ?",
@@ -87,11 +102,14 @@ def update_post(post_id):
 
 @app.route("/posts/<int:post_id>", methods=["DELETE"])
 def delete_post(post_id):
+  if not session.get("user_id"):
+    return jsonify({"message": "login required"}), 401
+
   conn = get_db()
   cur = conn.cursor()
 
   cur.execute(
-    "SELECT id FROM posts WHERE id = ?",
+    "SELECT * FROM posts WHERE id = ?",
     (post_id,)
   )
 
@@ -101,10 +119,14 @@ def delete_post(post_id):
     conn.close()
     return jsonify({"message": "post not found"}), 404
 
+  if post["user_id"] != session.get("user_id"):
+    conn.close()
+    return jsonify({"message": "forbidden"}), 403
+
   cur.execute(
     "DELETE FROM posts WHERE id = ?",
     (post_id,)
-    )
+  )
 
   conn.commit()
   conn.close()
@@ -133,7 +155,7 @@ def signup():
     (username, password_hash)
     )
     conn.commit()
-  except:
+  except sqlite3.IntegrityError:
     return jsonify({"message": "username already exists"}), 400
   finally:
     conn.close()
@@ -189,8 +211,6 @@ def me():
     return jsonify({"loggedIn": True})
   
   return jsonify({"loggedIn": False})
-  
-
 
 
 if __name__ == "__main__":
